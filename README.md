@@ -1,2 +1,0 @@
-# escenarioapache
-Prueba de sincronizacion

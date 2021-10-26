@@ -1,20 +1,24 @@
-FROM httpd:latest
+FROM php:7.4-apache
 
-RUN apt update; \
-    apt upgrade;
+RUN apt-get -y update \
+  && apt-get -y upgrade 
+  
+ENV APACHE_RUN_USER www-data
+ENV APACHE_RUN_GROUP www-data
+ENV APACHE_LOG_DIR /var/log/apache2
+ENV APACHE_PID_FILE /var/run/apache2.pid
+ENV APACHE_RUN_DIR /var/run/apache2
+ENV APACHE_LOCK_DIR /var/lock/apache2
+RUN ln -sf /dev/stdout /var/log/apache2/access.log && \
+    ln -sf /dev/stderr /var/log/apache2/error.log
+RUN mkdir -p $APACHE_RUN_DIR $APACHE_LOCK_DIR $APACHE_LOG_DIR
+RUN a2enmod auth_digest auth_basic status info
+RUN service apache2 restart
 
+VOLUME [ "/var/www/html" ]
+WORKDIR /var/www/html
 
-RUN apt install -y apache2 
+EXPOSE 80
 
-
-#RUN a2enmod auth_digest
-#RUN touch /etc/apache2/claves.txt
-#RUN htdigest -c /etc/apache2/claves.txt grupo1 bilbo
-
-#RUN chmod 640 /etc/apache2/claves.txt
-#RUN chown root.www-data /etc/apache2/claves.txt
-
-# Copy apache vhost file to proxy php requests to php-fpm container
-COPY sri.asir4all.ss.conf /usr/local/apache2/conf/sri.asir4all.ss.conf
-RUN echo "Include /usr/local/apache2/conf/sri.asir4all.ss.conf" \
-    >> /usr/local/apache2/conf/httpd.conf
+ENTRYPOINT [ "/usr/sbin/apache2" ]
+CMD ["-D" , "FOREGROUND"]

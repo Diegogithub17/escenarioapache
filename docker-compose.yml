@@ -1,29 +1,12 @@
-version: "3.2"
+version: '3'
+
 services:
-  php:
-    image: php:7.2.7-fpm-alpine3.7
-    networks:
-      - backend
-    volumes:
-      - ${PROJECT_ROOT}/:/var/www/html/
-    container_name: php
-  apache:
-    build:
-      context: './conf/'
-      args:
-       APACHE_VERSION: ${APACHE_VERSION}
-    depends_on:
-      - php
-    networks:
-      - frontend
-      - backend
+  apacheweb:
+    build: ./conf
     ports:
-      - "8181:80"
+      - '8181:80'
     volumes:
-      - ${PROJECT_ROOT}/:/var/www/html/
-    container_name: apache
-networks:
-  frontend:
-  backend:
-volumes:
-    data:
+      - ./web:/var/www/html
+      - ./conf/sri.asir4all.ss.conf:/etc/apache2/sites-available/000-default.conf
+      - ./conf/apachedigest:/etc/apache2/apachedigest
+      - ./conf/apachebasic:/etc/apache2/apachebasic
